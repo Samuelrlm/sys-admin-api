@@ -1,12 +1,13 @@
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const { s3Client } = require("../config/aws-s3");
 const { ProductsImages } = require("../models");
+require("dotenv").config();
  
 async function uploadFileToS3(file) {
     const fileName = `products/${Date.now()}-${file.originalname}`;
 
     const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: process.env.AWS_S3_BUCKET,
         Key: fileName,
         Body: file.buffer,
         ContentType: file.mimetype,
