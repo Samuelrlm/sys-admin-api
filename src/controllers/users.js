@@ -1,8 +1,36 @@
+require("dotenv").config()
+const { encryptUserToken } = require("../helpers/encrypt-user-token")
 const { Users } = require("../models")
+const redisClient = require("../config/redis")
+const { sendEmail } = require("../helpers/email-service")
+const { templateEmail } = require("../helpers/template-email")
 
 async function createUser(req,res){
     try {
-        await Users.create(req.body)
+        const user = await Users.create(req.body)
+
+        const token = await encryptUserToken(user)
+
+        await redisClient.set(
+            `user:${user.id}`,
+            token,
+            {
+                EX: 7 * 24 * 60 * 60
+            }
+        )
+
+        const link = `${process.env.FRONTEND_URL}/active-user?token=${token}`
+
+        const template = await templateEmail(user.name, link)
+
+        console.log(link)
+
+        await sendEmail(
+            user.email,
+            user.name,
+            "Bem-vindo ao nosso e-commerce",
+            template
+        )
 
         return res.status(201).send({
             message: "Usuário criado com sucesso!"

@@ -5,7 +5,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 async function validateInsertProduct(req, res, next) {
    await new Promise((resolve, reject) => {
-    upload.array("images", 5)(req, res, (err) => {
+    upload.any("images", 5)(req, res, (err) => {
         if(err){
             reject(err)
         } else {

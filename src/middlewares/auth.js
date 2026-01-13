@@ -31,6 +31,14 @@ async function validateLogin(req, res, next){
             })
         }
 
+        if(!user.active){
+            return res.status(400).send({
+                error: "Usuário não ativo",
+                code: 4002,
+                token: user.id
+            })
+        }
+
         req.user = user;
 
         next();

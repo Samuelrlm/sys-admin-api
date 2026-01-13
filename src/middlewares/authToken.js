@@ -21,8 +21,31 @@ function authToken(allowedRoles = []){
                     error: "Usuário não encontrado"
                 })
             }
+
+            if(!user.active){
+                return res.status(401).send({
+                    error: "Usuário não ativo"
+                })
+            }
+
+            if(allowedRoles.length > 0 && !allowedRoles.includes(user.role)){
+                return res.status(403).send({
+                    error: "Acesso não autorizado"
+                })
+            }
+
+            req.user = user;
+
+            next();
         } catch (error) {
-            
+            return res.status(401).send({
+                error: "token inválido"
+            })
         }
     }
+}
+
+
+module.exports = {
+    authToken
 }
